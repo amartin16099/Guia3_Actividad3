@@ -63,8 +63,43 @@ public class EvaluadorPostfijo {
      */
     static int evaluarPostFija(List<String> expresion) {
         Stack<Integer> pila = new Stack<>();
+        
+        for (String elemento : expresion) {
+            if (esOperando(elemento)) {
+                pila.push(Integer.parseInt(elemento));
+            } else if (esOperador(elemento)) {
+                if (pila.size() < 2) {
+                    throw new IllegalArgumentException("Expresión postfija no válida: no hay suficientes operandos.");
+                }
+                int operand2 = pila.pop();
+                int operand1 = pila.pop();
+                int resultado;
+                if (elemento.equals("+")) {
+                    resultado = operand1 + operand2;
+                } else if (elemento.equals("-")) {
+                    resultado = operand1 - operand2;
+                } else if (elemento.equals("*")) {
+                    resultado = operand1 * operand2;
+                } else if (elemento.equals("/")) {
+                    if (operand2 == 0) {
+                        throw new ArithmeticException("División por cero.");
+                    }
+                    resultado = operand1 / operand2;
+                } else if (elemento.equals("%")) {
+                    if (operand2 == 0) {
+                        throw new ArithmeticException("Módulo por cero.");
+                    }
+                    resultado = operand1 % operand2;
+                } else {
+                    throw new IllegalArgumentException("Operador no válido: " + elemento);
+                }
+                pila.push(resultado);
+            }
+        }
 
-        // TODO: Realiza la evaluación de la expresión en formato postfijo
+        if (pila.size() != 1) {
+            throw new IllegalArgumentException("Expresión postfija no válida: formato incorrecto.");
+        }
 
         return pila.pop();
     }

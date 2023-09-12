@@ -29,6 +29,24 @@ public class EvaluadorPostfijo {
     static boolean estaBalanceada(List<String> expresion) {
         Stack<String> delimitadores = new Stack<>();
 
+        for (String elemento:expresion) {
+            if (elemento.equals("(") || elemento.equals("[") || elemento.equals("{")) {
+                delimitadores.push(elemento);
+            }
+            else if (elemento.equals(")") || elemento.equals("]") || elemento.equals("}")) {
+                if (delimitadores.isEmpty()) {
+                    return false;
+            }
+
+                String ultimoDelimitador = delimitadores.pop();
+                if (!((ultimoDelimitador.equals("(") && elemento.equals(")")) ||
+                        (ultimoDelimitador.equals("[") && elemento.equals("]")) ||
+                        (ultimoDelimitador.equals("{") && elemento.equals("}")))) {
+                    return false;
+                }
+            }
+        }
+
         // TODO: Escriba el algoritmo del enunciado aquí
 
         return delimitadores.isEmpty();
@@ -40,6 +58,22 @@ public class EvaluadorPostfijo {
      */
     static void reemplazarDelimitadores(List<String> expresion) {
         // TODO: Escriba el algoritmo aquí
+
+        for (int i = 0; i < expresion.size(); i++) {
+            String elemento = expresion.get(i);
+            // Reemplaza corchetes por paréntesis
+            if (elemento.equals("[")) {
+                expresion.set(i, "(");
+            } else if (elemento.equals("]")) {
+                expresion.set(i, ")");
+            }
+            // Reemplaza llaves por paréntesis
+            else if (elemento.equals("{")) {
+                expresion.set(i, "(");
+            } else if (elemento.equals("}")) {
+                expresion.set(i, ")");
+            }
+        }
     }
 
     /**
@@ -47,13 +81,45 @@ public class EvaluadorPostfijo {
      * @return la expresión convertida a postfija
      * OJO: Debe usarse el algoritmo que está en el enunciado OBLIGATORIAMENTE
      */
+
     static List<String> convertirAPostfijo(List<String> expresion) {
         Stack<String> pila = new Stack<>();
         List<String> salida = new ArrayList<>();
 
+        for (String elemento : expresion) {
+            if (esOperando(elemento)) {
+                salida.add(elemento);
+            } else if (elemento.equals("(")) {
+                pila.push(elemento);
+            } else if (elemento.equals(")")) {
+                while (!pila.isEmpty() && !pila.peek().equals("(")) {
+                    salida.add(pila.pop());
+                }
+                pila.pop();
+            } else if (esOperador(elemento)) {
+                while (!pila.isEmpty() && esOperador(pila.peek())) {
+                    salida.add(pila.pop());
+                }
+                pila.push(elemento);
+            }
+        }
+
+        while (!pila.isEmpty()) {
+            salida.add(pila.pop());
+        }
+
         // TODO: Escriba el algoritmo aquí
 
         return salida;
+    }
+
+    static boolean esOperando(String elemento) {
+        return !esOperador(elemento) && !elemento.equals("(") && !elemento.equals(")");
+    }
+
+    static boolean esOperador(String elemento) {
+        String[] operadores = {"+", "-", "*", "/", "%"};
+        return Arrays.asList(operadores).contains(elemento);
     }
 
     /**
@@ -63,8 +129,8 @@ public class EvaluadorPostfijo {
      */
     static int evaluarPostFija(List<String> expresion) {
         Stack<Integer> pila = new Stack<>();
-        
-        for (String elemento : expresion) {
+
+         for (String elemento : expresion) {
             if (esOperando(elemento)) {
                 pila.push(Integer.parseInt(elemento));
             } else if (esOperador(elemento)) {
@@ -100,6 +166,9 @@ public class EvaluadorPostfijo {
         if (pila.size() != 1) {
             throw new IllegalArgumentException("Expresión postfija no válida: formato incorrecto.");
         }
+
+
+        // TODO: Realiza la evaluación de la expresión en formato postfijo
 
         return pila.pop();
     }
